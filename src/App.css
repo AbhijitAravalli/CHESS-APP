@@ -1,0 +1,131 @@
+.app {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.app h1 {
+  grid-column: 1 / -1;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.board-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.captured-row {
+  align-self: stretch;
+  min-height: 28px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 22px;
+  color: var(--text-dim);
+  background: var(--panel-2);
+  border-radius: 4px;
+}
+.captured-row .material { margin-left: auto; font-size: 13px; }
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.card h3 {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.status {
+  font-size: 15px;
+  line-height: 1.5;
+}
+.status .turn { font-weight: 600; }
+.status .check {
+  color: var(--danger);
+  font-weight: 600;
+  margin-top: 4px;
+}
+.status .banner {
+  padding: 8px 12px;
+  background: var(--accent);
+  color: white;
+  border-radius: 4px;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.moves {
+  max-height: 220px;
+  overflow-y: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.moves .row {
+  display: grid;
+  grid-template-columns: 32px 1fr 1fr;
+  gap: 8px;
+  padding: 2px 4px;
+}
+.moves .row:nth-child(odd) { background: var(--panel-2); }
+.moves .num { color: var(--text-dim); }
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.controls button { padding: 8px 10px; font-size: 13px; }
+.controls .full { grid-column: 1 / -1; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px 32px;
+  min-width: 320px;
+  text-align: center;
+}
+.modal h2 { margin: 0 0 8px 0; }
+.modal p { margin: 4px 0 20px 0; color: var(--text-dim); }
+.modal .actions { display: flex; gap: 10px; justify-content: center; }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+}
