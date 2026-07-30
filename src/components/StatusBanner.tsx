@@ -14,11 +14,18 @@ const STATUS_LABEL: Record<string, string> = {
 
 export function StatusBanner({ game }: { game: UseChessGame }) {
   const turnName = game.turn === 'w' ? 'White' : 'Black'
+  const vsComputer = game.computerColor !== null
+  const turnLabel = vsComputer
+    ? game.turn === game.computerColor
+      ? 'Computer to move'
+      : 'Your move'
+    : `${turnName} to move`
   return (
     <div className="card status">
       {!game.isGameOver && (
         <>
-          <div className="turn">{turnName} to move</div>
+          <div className="turn">{turnLabel}</div>
+          {game.thinking && <div className="thinking">Computer is thinking…</div>}
           {game.status === 'CHECK' && <div className="check">Check!</div>}
         </>
       )}

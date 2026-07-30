@@ -5,19 +5,31 @@ import { StatusBanner } from './components/StatusBanner'
 import { MoveHistory } from './components/MoveHistory'
 import { CapturedRow } from './components/CapturedPieces'
 import { GameControls } from './components/GameControls'
+import { GameSetup } from './components/GameSetup'
 import { GameOverModal } from './components/GameOverModal'
+import type { GameConfig } from './types'
 import './App.css'
 
+const INITIAL_CONFIG: GameConfig = { mode: 'pvp', humanColor: 'w', difficulty: 'medium' }
+
 export default function App() {
-  const game = useChessGame()
+  const [config, setConfig] = useState<GameConfig>(INITIAL_CONFIG)
+  const game = useChessGame(config)
   const [orientation, setOrientation] = useState<'white' | 'black'>('white')
+
+  const applyConfig = (next: GameConfig) => {
+    setConfig(next)
+    // Orient the board so the human's pieces sit at the bottom.
+    if (next.mode === 'pvc') setOrientation(next.humanColor === 'w' ? 'white' : 'black')
+    game.reset()
+  }
 
   const topCapturer = orientation === 'white' ? 'b' : 'w'
   const bottomCapturer = orientation === 'white' ? 'w' : 'b'
 
   return (
     <div className="app">
-      <h1>♞ Claude Chess — pass & play</h1>
+      <h1>♞ Claude Chess</h1>
 
       <div className="board-wrap">
         <CapturedRow
@@ -36,6 +48,7 @@ export default function App() {
       </div>
 
       <aside className="sidebar">
+        <GameSetup config={config} onChange={applyConfig} />
         <StatusBanner game={game} />
         <GameControls
           game={game}

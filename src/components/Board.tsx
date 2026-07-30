@@ -56,7 +56,7 @@ export function Board({ game, orientation }: Props) {
   }
 
   const onSquareClick = (square: Square) => {
-    if (game.isGameOver) return
+    if (!game.canHumanMove) return
     if (selected && selected !== square) {
       const moved = attemptMove(selected, square)
       if (moved) return
@@ -65,7 +65,18 @@ export function Board({ game, orientation }: Props) {
     setSelected(square)
   }
 
-  const onPieceDrop = (from: Square, to: Square): boolean => attemptMove(from, to)
+  const onPieceDrop = (from: Square, to: Square): boolean => {
+    if (!game.canHumanMove) return false
+    return attemptMove(from, to)
+  }
+
+  // In vs-computer mode, only let the human pick up their own pieces.
+  const isDraggablePiece = ({ piece }: { piece: string }): boolean => {
+    if (!game.canHumanMove) return false
+    if (!game.computerColor) return true
+    // piece is like "wP" / "bN"; first char is the color.
+    return piece[0] !== game.computerColor
+  }
 
   return (
     <Chessboard
@@ -73,6 +84,7 @@ export function Board({ game, orientation }: Props) {
       boardOrientation={orientation}
       onSquareClick={onSquareClick}
       onPieceDrop={onPieceDrop}
+      isDraggablePiece={isDraggablePiece}
       customSquareStyles={squareStyles}
       customDarkSquareStyle={{ backgroundColor: '#6b7d4a' }}
       customLightSquareStyle={{ backgroundColor: '#efe5c1' }}

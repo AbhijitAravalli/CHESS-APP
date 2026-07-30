@@ -12,12 +12,15 @@ const REASON: Record<string, string> = {
 
 export function GameOverModal({ game }: { game: UseChessGame }) {
   if (!game.isGameOver) return null
-  const headline =
-    game.winner === 'draw'
-      ? 'Draw'
-      : game.winner === 'w'
-        ? 'White wins'
-        : 'Black wins'
+  const vsComputer = game.computerColor !== null
+  let headline: string
+  if (game.winner === 'draw') {
+    headline = 'Draw'
+  } else if (vsComputer) {
+    headline = game.winner === game.computerColor ? 'Computer wins' : 'You win! 🎉'
+  } else {
+    headline = game.winner === 'w' ? 'White wins' : 'Black wins'
+  }
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
       <div className="modal">

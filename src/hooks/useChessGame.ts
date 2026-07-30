@@ -1,6 +1,14 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Chess, Square } from 'chess.js'
-import type { GameStatus, HistoryMove, Winner, Color, PieceSymbol } from '../types'
+import type {
+  GameStatus,
+  HistoryMove,
+  Winner,
+  Color,
+  PieceSymbol,
+  GameConfig,
+} from '../types'
+import { findBestMove } from '../ai/engine'
 
 export interface DrawOffer { from: Color }
 
@@ -28,6 +36,20 @@ export interface UseChessGame {
   resign: (color: Color) => void
   reset: () => void
   pgn: string
+  // --- vs-computer support ---
+  config: GameConfig
+  /** The color the computer plays, or null in pass-and-play. */
+  computerColor: Color | null
+  /** True while the engine is choosing a move. */
+  thinking: boolean
+  /** Whether the side to move is controllable by the human right now. */
+  canHumanMove: boolean
+}
+
+const DEFAULT_CONFIG: GameConfig = {
+  mode: 'pvp',
+  humanColor: 'w',
+  difficulty: 'medium',
 }
 
 function findKingSquare(chess: Chess, color: Color): Square | null {
@@ -41,12 +63,16 @@ function findKingSquare(chess: Chess, color: Color): Square | null {
   return null
 }
 
-export function useChessGame(): UseChessGame {
+export function useChessGame(config: GameConfig = DEFAULT_CONFIG): UseChessGame {
   const [chess] = useState(() => new Chess())
   const [fen, setFen] = useState(chess.fen())
   const [drawOffer, setDrawOffer] = useState<DrawOffer | null>(null)
   const [manualEnd, setManualEnd] = useState<{ status: GameStatus; winner: Winner } | null>(null)
+  const [thinking, setThinking] = useState(false)
   const [, forceTick] = useState(0)
+
+  const computerColor: Color | null =
+    config.mode === 'pvc' ? (config.humanColor === 'w' ? 'b' : 'w') : null
 
   const sync = useCallback(() => {
     setFen(chess.fen())
@@ -153,6 +179,8 @@ export function useChessGame(): UseChessGame {
   const tryMove = useCallback(
     (from: Square, to: Square, promotion?: PieceSymbol): boolean => {
       if (isGameOver) return false
+      // In vs-computer mode the human may only move their own pieces.
+      if (computerColor && chess.turn() === computerColor) return false
       try {
         const result = chess.move({ from, to, promotion })
         if (!result) return false
@@ -163,8 +191,36 @@ export function useChessGame(): UseChessGame {
       sync()
       return true
     },
-    [chess, isGameOver, sync],
+    [chess, isGameOver, sync, computerColor],
   )
+
+  // Drive the computer: whenever it is the engine's turn, pick and play a move.
+  useEffect(() => {
+    if (!computerColor) return
+    if (isGameOver) return
+    if (chess.turn() !== computerColor) return
+
+    setThinking(true)
+    // Defer so React paints the "thinking" state and the human's move first.
+    const id = setTimeout(() => {
+      const best = findBestMove(chess.fen(), config.difficulty)
+      if (best) {
+        chess.move({ from: best.from, to: best.to, promotion: best.promotion })
+        setDrawOffer(null)
+        sync()
+      }
+      setThinking(false)
+    }, 400)
+
+    return () => {
+      clearTimeout(id)
+      setThinking(false)
+    }
+    // Re-evaluate after every position change (fen) and config change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fen, computerColor, config.difficulty, isGameOver])
+
+  const canHumanMove = !isGameOver && (!computerColor || turn !== computerColor)
 
   const offerDraw = useCallback(
     (from: Color) => {
@@ -201,6 +257,7 @@ export function useChessGame(): UseChessGame {
     chess.reset()
     setDrawOffer(null)
     setManualEnd(null)
+    setThinking(false)
     sync()
   }, [chess, sync])
 
@@ -228,5 +285,9 @@ export function useChessGame(): UseChessGame {
     resign,
     reset,
     pgn: chess.pgn(),
+    config,
+    computerColor,
+    thinking,
+    canHumanMove,
   }
 }

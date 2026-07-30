@@ -16,6 +16,16 @@ export type GameStatus =
 
 export type Winner = Color | 'draw' | null
 
+export type GameMode = 'pvp' | 'pvc'
+export type Difficulty = 'easy' | 'medium' | 'hard'
+
+export interface GameConfig {
+  mode: GameMode
+  /** In 'pvc' mode, the color the human plays. Ignored in 'pvp'. */
+  humanColor: Color
+  difficulty: Difficulty
+}
+
 export interface HistoryMove {
   san: string
   from: Square

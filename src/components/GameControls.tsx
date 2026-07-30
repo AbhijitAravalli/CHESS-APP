@@ -8,6 +8,31 @@ interface Props {
 export function GameControls({ game, onFlip }: Props) {
   const { drawOffer, isGameOver, canClaimFiftyMove, canClaimThreefold, turn } = game
   const turnName = turn === 'w' ? 'White' : 'Black'
+  const humanColor = game.config.humanColor
+
+  if (game.computerColor) {
+    // vs-computer: draw offers/two-sided resign don't apply.
+    return (
+      <div className="card">
+        <h3>Controls</h3>
+        <div className="controls">
+          <button
+            className="danger full"
+            disabled={isGameOver}
+            onClick={() => game.resign(humanColor)}
+          >
+            Resign
+          </button>
+          <button onClick={onFlip} className="full">
+            Flip board
+          </button>
+          <button onClick={game.reset} className="full primary">
+            New game
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="card">
