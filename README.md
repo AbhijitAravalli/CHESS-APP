@@ -1,4 +1,4 @@
-# Claude Chess — Pass & Play
+# Play Chess
 
 Two-player, same-device chess. Implements **Variant A** of the chess-app
 coding prompt: no backend, no networking, both players share one screen.

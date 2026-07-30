@@ -29,7 +29,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <h1>♞ Claude Chess</h1>
+      <h1>♞ Play Chess</h1>
 
       <div className="board-wrap">
         <CapturedRow
